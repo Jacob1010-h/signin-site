@@ -65,12 +65,15 @@ function Dev() {
                 let [hours, minutes, seconds] = duration.split(':')
                 // the addedDuration is in hours
                 hours = parseInt(hours) + parseInt(addedHours)
+
+                console.log(minutes, addedMinutes)
                 minutes = parseInt(minutes) + parseInt(addedMinutes)
+                console.log(minutes, addedMinutes)
 
                 if (hours < 0) {
                     hours = 0;
-                    minutes = '00';
-                    seconds = '00';
+                    minutes = 0;
+                    seconds = 0;
                 } else {
                     // clamp hours from 0-12
                     hours = Math.min(12, Math.max(0, hours))
@@ -91,6 +94,12 @@ function Dev() {
                 }
                 if (month.startsWith('0')) {
                     month = month.slice(1)
+                }
+
+                // one last check to make sure no NaNs are being sent
+                if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
+                    console.error('NaNs are being sent to the database')
+                    return
                 }
 
                 setData(

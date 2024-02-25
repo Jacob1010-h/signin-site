@@ -93,12 +93,14 @@ function EventManager(input, isStudent = true) {
             case 'Enter':
                 e.preventDefault()
                 if (value === '') {
+                    createErrorMessage(e);
                     return
                 }
                 const inputValue = value.trim()
 
                 const parsedInput = parseInput(inputValue);
                 if (!parsedInput) {
+                    createErrorMessage(e);
                     return;
                 }
 
@@ -113,11 +115,11 @@ function EventManager(input, isStudent = true) {
                 minutes = adjustedTime.minutes;
 
                 if (isNaN(hours) || isNaN(minutes)) {
-                    e.target.value = ''
+                    createErrorMessage(e);
                     return;
                 }
                 setDuration(hours + ':' + minutes)
-                input.onSubmit(inputValue)
+                input.onSubmit(hours, minutes)
 
                 e.target.value = ''
                 break;
@@ -130,6 +132,27 @@ function EventManager(input, isStudent = true) {
                 break
             default:
         }
+    }
+
+    const createErrorMessage = (e) => {
+        e.target.value = ''
+
+        // Create error message element
+        const errorMessage = document.createElement('div');
+        errorMessage.textContent = 'Invalid input!';
+        errorMessage.className = 'error-message';
+
+        // Position it above the input element
+        errorMessage.style.left = `${e.target.offsetLeft + e.target.offsetWidth / 2 - 73}px`;
+        errorMessage.style.top = `${-e.target.offsetTop - 7.5}px`;
+
+        // Insert it into the DOM
+        e.target.parentNode.insertBefore(errorMessage, e.target);
+
+        // Remove it after 2 seconds
+        setTimeout(() => {
+            errorMessage.parentNode.removeChild(errorMessage);
+        }, 2000);
     }
 
     const parseInput = (inputValue) => {

@@ -89,3 +89,16 @@ hr.solid {
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
     text-align: left;
 }
+
+.error-message {
+    position: absolute;
+    color: red;
+    animation: fadeout ease-in 2s forwards;
+    font-size: 1.5rem;
+    align-self: center;
+}
+
+@keyframes fadeout {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
