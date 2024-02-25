@@ -96,22 +96,31 @@ function EventManager(input, isStudent = true) {
                     return
                 }
                 const inputValue = value.trim()
-                // Make sure all of the data (trimmed) are numbers
-                if (!isNaN(inputValue)) {
-                    let hours =
-                        parseInt(duration.split(':')[0]) + parseInt(inputValue)
-                    // clamp hours from 0-12
-                    hours = Math.min(12, Math.max(0, hours))
-                    let minutes = duration.split(':')[1]
-                    // if mins is less than 10, add a 0 at end
-                    if (minutes.length === 1) {
-                        minutes += '0'
-                    }
-                    setDuration(hours + ':' + minutes)
-                    input.onSubmit(inputValue)
+
+                const parsedInput = parseInput(inputValue);
+                if (!parsedInput) {
+                    return;
                 }
+
+                let currentHours = parseInt(duration.split(':')[0]);
+                let currentMinutes = parseInt(duration.split(':')[1]);
+
+                let hours = currentHours + parsedInput.inputHours;
+                let minutes = currentMinutes + parsedInput.inputMinutes;
+
+                const adjustedTime = adjustTime(hours, minutes);
+                hours = adjustedTime.hours;
+                minutes = adjustedTime.minutes;
+
+                if (isNaN(hours) || isNaN(minutes)) {
+                    e.target.value = ''
+                    return;
+                }
+                setDuration(hours + ':' + minutes)
+                input.onSubmit(inputValue)
+
                 e.target.value = ''
-                break
+                break;
             case 'Escape':
                 // in case the above case was just triggered,
                 // wait a bit before clearing the value
@@ -121,6 +130,47 @@ function EventManager(input, isStudent = true) {
                 break
             default:
         }
+    }
+
+    const parseInput = (inputValue) => {
+        let inputHours, inputMinutes;
+
+        // Check if input is in "hours:minutes" format
+        if (inputValue.includes(':')) {
+            [inputHours, inputMinutes] = inputValue.split(':').map(Number);
+        } else if (!isNaN(inputValue)) {
+            // If not, assume it's a decimal number representing hours
+            inputHours = Math.floor(inputValue);
+            inputMinutes = Math.round((inputValue - inputHours) * 60);
+        } else {
+            // If input is neither a decimal number nor in "hours:minutes" format, exit
+            return null;
+        }
+
+        return { inputHours, inputMinutes };
+    }
+
+    const adjustTime = (hours, minutes) => {
+        // Adjust hours and minutes if minutes are over 60
+        if (minutes >= 60) {
+            hours += Math.floor(minutes / 60);
+            minutes = minutes % 60;
+        }
+
+        // clamp hours from 0-12
+        // if hours is less than 0, set hours and minutes to zero
+        if (hours < 0) {
+            hours = 0
+            minutes = 0
+        }
+        hours = Math.min(12, Math.max(0, hours))
+
+        // if mins is less than 10, add a 0 at end
+        if (minutes < 10) {
+            minutes = `0${minutes}`
+        }
+
+        return { hours, minutes };
     }
 
     const eventInputs = (

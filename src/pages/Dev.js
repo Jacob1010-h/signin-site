@@ -4,6 +4,7 @@ import EventManager from '../components/EventManager'
 import ErrorList from '../components/ErrorList'
 import './Dev.css'
 import { getData, setData } from '../utils/firebaseConfig.js'
+import { min } from 'lodash'
 
 function Dev() {
     const [studentWhitelist, setStudentWhitelist] = useState([])
@@ -27,7 +28,7 @@ function Dev() {
         })
     }
 
-    const handleDurationChange = (addedDuration) => {
+    const handleDurationChange = (addedHours, addedMinutes) => {
         // Get the current duration of the current day
         // += the added duration
         // Set the new duration
@@ -63,9 +64,23 @@ function Dev() {
                 }
                 let [hours, minutes, seconds] = duration.split(':')
                 // the addedDuration is in hours
-                hours = parseInt(hours) + parseInt(addedDuration)
-                // clamp hours from 0-12
-                hours = Math.min(12, Math.max(0, hours))
+                hours = parseInt(hours) + parseInt(addedHours)
+                minutes = parseInt(minutes) + parseInt(addedMinutes)
+
+                if (hours < 0) {
+                    hours = 0;
+                    minutes = '00';
+                    seconds = '00';
+                } else {
+                    // clamp hours from 0-12
+                    hours = Math.min(12, Math.max(0, hours))
+                    // clamp minutes from 0-59
+                    minutes = Math.min(59, Math.max(0, minutes))
+                    if (minutes < 10) {
+                        minutes = `0${minutes}`
+                    }
+                }
+
                 duration = `${hours}:${minutes}:${seconds}`
 
                 let [year, month, day] = searchDate.split('-')
